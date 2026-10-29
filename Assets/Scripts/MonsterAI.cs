@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class MonsterAI : MonoBehaviour
-{
+public class MonsterAI : MonoBehaviour {
     [Header("Игрок")]
     public Transform player;
 
@@ -53,36 +52,31 @@ public class MonsterAI : MonoBehaviour
     }
 
     // Видит ли монстр игрока?
-    bool CanSeePlayer()
-    {
-        Vector3 targetPoint = player.position + Vector3.up;
-        Vector3 directionToPlayer = targetPoint - eyes.position;
+    bool CanSeePlayer() {
 
-        if (directionToPlayer.magnitude > viewDistance) {
-            return false;
-        }
-
-        // Игрок перед монстром?
-        float angle = Vector3.Angle(transform.forward, directionToPlayer);
-
-        if (angle > viewAngle / 2f) {
-            return false;
-        }
-
-        // Игрок за стеной?
-        if (Physics.Raycast(
-            eyes.position,
-            directionToPlayer.normalized,
-            out RaycastHit hit,
-            viewDistance,
-            visionMask)) {
-            return hit.transform == player || hit.transform.IsChildOf(player);
-        }
-        return false;
+    float distance = Vector3.Distance(transform.position, player.position);
+    if (distance > viewDistance) {
+        return false; // Слишком далеко
     }
 
-    void Patrol()
-    {
+    Vector3 eyesPos = eyes != null ? eyes.position : transform.position + Vector3.up * 1.5f;
+    Vector3 targetPos = player.position + Vector3.up * 1.5f;
+    Vector3 dir = (targetPos - eyesPos).normalized;
+
+    if (Physics.Raycast(eyesPos, dir, out RaycastHit hit, distance, visionMask)) {
+        if (hit.transform == player || hit.transform.IsChildOf(player))
+        {
+            return true;
+        }
+        else
+        {
+            return false; 
+        }
+    }
+    return true;
+    }
+
+    void Patrol() {
         if (patrolPoints.Length == 0) {
             return;
         }
@@ -94,6 +88,15 @@ public class MonsterAI : MonoBehaviour
                 currentPoint = 0;
             }
             agent.SetDestination(patrolPoints[currentPoint].position);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        if (other.CompareTag("Player")) {
+
+        Debug.Log("Игрок умер");
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
     }
 }
