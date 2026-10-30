@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour {
     public float currentSpeed;
     public float walkSpeed;
     public float sprintSpeed;
+    public float _mouseSensitivity = 2f;
+
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private CinemachineCamera _cinCam;
 
@@ -16,11 +18,15 @@ public class PlayerController : MonoBehaviour {
     public float staminaRegen = 15f;
     public UnityEngine.UI.Image staminaBar;
 
-    private bool isExhausted = false; // Игрок не может бежать
+    private bool isExhausted = false; 
     
     private Vector2 _move;
 
     private void Start() {
+        if (PlayerPrefs.HasKey("Sensitivity")) {
+            _mouseSensitivity = PlayerPrefs.GetFloat("Sensitivity");
+        }
+
         currentSpeed = walkSpeed;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -28,6 +34,7 @@ public class PlayerController : MonoBehaviour {
 
         currentStamina = maxStamina;
     }
+    
     public void OnMove(InputValue val) {
         _move = val.Get<Vector2>();
     }
@@ -50,27 +57,24 @@ public class PlayerController : MonoBehaviour {
     private Vector3 GetForward() {
         Vector3 forward = _cinCam.transform.forward;
         forward.y = 0;
-
         return forward.normalized;
     }
+    
     private Vector3 GetRight() {
         Vector3 right = _cinCam.transform.right;
         right.y = 0;
-
         return right.normalized;
     }
 
-        void HandleStamina() {
+    void HandleStamina() {
         if (currentSpeed == sprintSpeed && currentStamina > 0) {
             currentStamina -= staminaDrain * Time.deltaTime;
             
-            // Если стамина кончилась
             if (currentStamina <= 0) {
                 currentStamina = 0; isExhausted = true; currentSpeed = walkSpeed;
             }
         }
         else {
-            // Восстановление стамины, если игрок не бежит
             if (currentStamina < maxStamina) {
                 currentStamina += staminaRegen * Time.deltaTime;
                 if (currentStamina > maxStamina) currentStamina = maxStamina;
