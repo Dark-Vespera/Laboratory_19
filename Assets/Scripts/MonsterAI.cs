@@ -3,6 +3,9 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class MonsterAI : MonoBehaviour {
+
+    private AudioSource monsterAudio;
+
     [Header("Игрок")]
     public Transform player;
 
@@ -33,6 +36,7 @@ public class MonsterAI : MonoBehaviour {
             agent.speed = patrolSpeed;
             agent.SetDestination(patrolPoints[currentPoint].position);
         }
+        monsterAudio = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -48,6 +52,18 @@ public class MonsterAI : MonoBehaviour {
         else {
             agent.speed = patrolSpeed; 
             Patrol(); // Патрулирует
+        }
+        // Звук монстра
+        if (monsterAudio != null && player != null) {
+            float distance = Vector3.Distance(transform.position, player.position);
+            float maxHearDistance = 20f; // На каком расстоянии мы слышим монстра
+
+            // Если игрок в зоне слышимости
+            if (distance < maxHearDistance) {
+                monsterAudio.volume = 1f - (distance / maxHearDistance);
+            } else {
+                monsterAudio.volume = 0f; // Если далеко, звук выключается
+            }
         }
     }
 

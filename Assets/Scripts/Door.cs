@@ -27,7 +27,7 @@ public class Door : MonoBehaviour
     {
         isOpen = true;
 
-        // 1. Отключаем коллайдер, чтобы дверь не тащила игрока
+        // 1. Отключаем коллайдер (чтобы дверь не тащила игрока)
         Collider doorCollider = GetComponent<Collider>();
         if (doorCollider != null) doorCollider.enabled = false;
 
@@ -44,7 +44,7 @@ public class Door : MonoBehaviour
             yield return null; // Ждем следующий кадр
         }
 
-        // На всякий случай ставим точную конечную позицию
+        // Ставим точную конечную позицию
         transform.position = endPos;
     }
 }

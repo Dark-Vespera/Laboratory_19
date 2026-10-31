@@ -1,8 +1,12 @@
 using UnityEngine;
-using TMPro; // Добавили для работы с текстом
+using TMPro;
 
-public class PlayerInteraction : MonoBehaviour
-{
+public class PlayerInteraction : MonoBehaviour {
+
+    [Header("Звуки")]
+    public AudioSource pickupSound;
+    public AudioClip pickupClip;
+
     public float interactDistance = 3f;
     
     // Подсказка на экране
@@ -58,6 +62,10 @@ public class PlayerInteraction : MonoBehaviour
             if (hit.collider.CompareTag("Fuse")) {
                 fusesCollected++;
                 Destroy(hit.collider.gameObject);
+
+                if (pickupClip != null) {
+                    AudioSource.PlayClipAtPoint(pickupClip, transform.position, 1f);
+                }
                 
                 // Вызов уведомления
                 UIManager.Instance.ShowNotification($"Найден предохранитель ({fusesCollected}/{totalFusesNeeded})");

@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour {
+
+    [Header("Звуки")]
+    public AudioSource footstepsAudio;
+
     public float currentSpeed;
     public float walkSpeed;
     public float sprintSpeed;
@@ -49,9 +53,32 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void Update() {
+        // Движение
         _characterController.Move((GetForward() * _move.y + GetRight() * _move.x) * Time.deltaTime * currentSpeed);
 
         HandleStamina();
+
+        // Звуки шагов
+        if (footstepsAudio != null) {
+            // Если игрок двигается
+            if (_move.magnitude > 0.1f) {
+                if (!footstepsAudio.isPlaying) {
+                    footstepsAudio.Play(); // Включаем звук
+                }
+
+                if (currentSpeed == sprintSpeed) {
+                    footstepsAudio.pitch = 1.4f; // Звук при беге
+                } else {
+                    footstepsAudio.pitch = 1f;   // Обычный звук при ходьбе
+                }
+            } 
+            // Если игрок стоит на месте
+            else {
+                if (footstepsAudio.isPlaying) {
+                    footstepsAudio.Stop(); // Выключаем звук
+                }
+            }
+        }
     }
 
     private Vector3 GetForward() {
